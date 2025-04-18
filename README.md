@@ -9,7 +9,7 @@ This project demonstrates systems-level development in Rust, including protocol 
 ## 🚀 Features
 
 - ⚙️ Redis-style command support:
-  - `SET`, `GET`, `DEL`, `MGET`, `ECHO`
+  - `SET`, `GET`, `DEL`, `MGET`, `ECHO`, `KEYS`
 - 🔌 **TCP Networking** with RESP (Redis Serialization Protocol)
 - 🧠 **Passive Expiry**: Keys expire when accessed after TTL
 - 🔥 **Active Expiry**: Background thread purges expired keys periodically
@@ -56,6 +56,7 @@ OK
 | `DEL key` | Delete a key |
 | `MGET key1 key2 ...` | Multi-get |
 | `ECHO message` | Echo back a string |
+| `KEYS pattern` | Return all keys matching the given pattern |
 
 ---
 
