@@ -7,18 +7,24 @@ use std::{
 };
 
 use crate::{
-    commands::command::SharedState,
-    commands::{send_error, CommandContext, SharedRegistry},
+    commands::{command::SharedState, send_error, CommandContext, SharedRegistry},
     expiry_manager,
     memory::Memory,
     resp::{parse_resp, Resp},
+    utils::role::Role,
 };
+
+#[derive(Clone)]
+pub struct ServerMetaData {
+    pub role: Role,
+}
 
 pub struct Server {
     listener: TcpListener,
     memory: Arc<Mutex<Memory>>,
     command_registry: SharedRegistry,
     expiry_manager: Arc<Mutex<expiry_manager::ExpiryManager>>,
+    server_metadata: ServerMetaData,
 }
 
 impl Server {
@@ -27,6 +33,7 @@ impl Server {
         memory: Arc<Mutex<Memory>>,
         command_registry: SharedRegistry,
         expiry_manager: Arc<Mutex<expiry_manager::ExpiryManager>>,
+        role: Role,
     ) -> Result<Self, std::io::Error> {
         let listener = TcpListener::bind(address)?;
         Ok(Server {
@@ -34,6 +41,7 @@ impl Server {
             memory,
             command_registry,
             expiry_manager,
+            server_metadata: ServerMetaData { role },
         })
     }
 
@@ -65,8 +73,9 @@ impl Server {
                     let memory = self.memory.clone();
                     let registry = self.command_registry.clone();
                     let expiry_manager = self.expiry_manager.clone();
+                    let metadata = self.server_metadata.clone();
                     std::thread::spawn(move || {
-                        handle_client(memory, registry, tcp_stream, expiry_manager)
+                        handle_client(memory, registry, tcp_stream, expiry_manager, metadata)
                     });
                 }
                 Err(e) => eprintln!("Connection error: {}", e),
@@ -80,6 +89,7 @@ fn handle_client(
     registry: SharedRegistry,
     mut stream: TcpStream,
     expiry_manager: Arc<Mutex<crate::expiry_manager::ExpiryManager>>,
+    metadata: ServerMetaData,
 ) {
     let state = Arc::new(SharedState {
         memory,
@@ -118,6 +128,7 @@ fn handle_client(
                         let mut context = CommandContext {
                             stream: stream.try_clone().unwrap(),
                             state: state.clone(), // Use Arc to share the state
+                            server_meta_data: metadata.clone(),
                         };
                         command.execute(&arr[1..], &mut context);
                     } else {

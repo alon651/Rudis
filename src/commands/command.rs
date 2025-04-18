@@ -1,4 +1,4 @@
-use crate::{expiry_manager::ExpiryManager, memory::Memory, resp::Resp};
+use crate::{expiry_manager::ExpiryManager, memory::Memory, resp::Resp, server::ServerMetaData};
 use std::{
     collections::HashMap,
     io::Write,
@@ -15,6 +15,7 @@ pub struct SharedState {
 pub struct CommandContext {
     pub stream: TcpStream,
     pub state: Arc<SharedState>, // Use Arc to share the state
+    pub server_meta_data: ServerMetaData,
 }
 
 pub trait Command {
@@ -25,6 +26,7 @@ pub trait Command {
 // Centralized error messages
 pub mod errors {
     pub const INVALID_GET_KEY: &str = "invalid GET key";
+    pub const INVALID_DEL_KEY: &str = "invalid DEL key";
     pub const INVALID_SET_KEY: &str = "invalid SET key";
 }
 
@@ -37,13 +39,15 @@ pub fn parse_bulk_string_arg(arg: &Resp) -> Result<String, &'static str> {
     }
 }
 
-// Utility function to parse optional flags
-pub fn parse_optional_flags(args: &[Resp]) -> Result<HashMap<String, u64>, &'static str> {
+// Utility function to parse optional flags with generic value type
+pub fn parse_optional_flags<T: std::str::FromStr>(
+    args: &[Resp],
+) -> Result<HashMap<String, T>, &'static str> {
     let mut flags = HashMap::new();
 
     for chunk in args.chunks(2) {
         if let [Resp::BulkString(Some(flag)), Resp::BulkString(Some(value))] = chunk {
-            match value.parse::<u64>() {
+            match value.parse::<T>() {
                 Ok(parsed_value) => {
                     flags.insert(flag.to_ascii_uppercase(), parsed_value);
                 }

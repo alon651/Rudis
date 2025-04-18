@@ -2,6 +2,7 @@ pub(crate) mod command;
 mod del;
 mod echo;
 mod get;
+mod info;
 mod keys;
 mod ping;
 mod set;
@@ -10,6 +11,7 @@ pub use command::{send_error, Command, CommandContext};
 use del::DelCommand;
 use echo::EchoCommand;
 use get::GetCommand;
+use info::InfoCommand;
 use keys::KeysCommand;
 use ping::PingCommand;
 use set::SetCommand;
@@ -34,6 +36,7 @@ impl CommandRegistry {
         registry.register(Box::new(SetCommand));
         registry.register(Box::new(KeysCommand)); // Register KEYS command
         registry.register(Box::new(DelCommand));
+        registry.register(Box::new(InfoCommand));
 
         registry
     }

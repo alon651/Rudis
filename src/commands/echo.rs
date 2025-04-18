@@ -21,4 +21,5 @@ impl Command for EchoCommand {
             send_error(&mut ctx.stream, "ECHO takes exactly one argument");
         }
     }
+
 }

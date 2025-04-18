@@ -11,6 +11,7 @@ impl Command for KeysCommand {
         "KEYS"
     }
 
+
     fn execute(&self, args: &[Resp], ctx: &mut CommandContext) {
         if args.len() != 1 {
             send_error(&mut ctx.stream, "KEYS requires exactly one argument");

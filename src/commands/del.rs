@@ -12,6 +12,7 @@ impl Command for DelCommand {
         "DEL"
     }
 
+
     fn execute(&self, args: &[Resp], ctx: &mut CommandContext) {
         if args.is_empty() {
             send_error(&mut ctx.stream, "DEL requires at least one argument");
@@ -30,7 +31,7 @@ impl Command for DelCommand {
                     ctx.state.expiry_manager.lock().unwrap().remove_expiry(&key);
                 }
                 Err(_) => {
-                    send_error(&mut ctx.stream, errors::INVALID_GET_KEY);
+                    send_error(&mut ctx.stream, errors::INVALID_DEL_KEY);
                     return;
                 }
             }
