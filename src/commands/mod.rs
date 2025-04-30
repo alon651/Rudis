@@ -5,6 +5,7 @@ mod get;
 mod keys;
 mod ping;
 mod set;
+mod mget;
 
 pub use command::{send_error, Command, CommandContext};
 use del::DelCommand;
@@ -13,6 +14,7 @@ use get::GetCommand;
 use keys::KeysCommand;
 use ping::PingCommand;
 use set::SetCommand;
+use mget::MgetCommand;
 
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
@@ -34,6 +36,7 @@ impl CommandRegistry {
         registry.register(Box::new(SetCommand));
         registry.register(Box::new(KeysCommand)); // Register KEYS command
         registry.register(Box::new(DelCommand));
+        registry.register(Box::new(MgetCommand));
 
         registry
     }
