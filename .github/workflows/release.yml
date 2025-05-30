@@ -3,21 +3,22 @@ name: Release
 on:
   push:
     tags:
-      - "v*.*.*"  # Triggers when you push tags like v1.0.0
+      - "v*.*.*"
+
+env:
+  BIN_NAME: Rudis # ← 🔧 Replace this with your real binary name
 
 jobs:
-  build:
+  # Linux and Windows via cross
+  cross-build:
     name: Build ${{ matrix.target }}
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
         target:
           - x86_64-unknown-linux-gnu
-          - x86_64-pc-windows-gnu
-          - x86_64-apple-darwin
           - aarch64-unknown-linux-gnu
-          # Add more if needed
+          - x86_64-pc-windows-gnu
 
     steps:
     - uses: actions/checkout@v4
@@ -30,19 +31,47 @@ jobs:
     - name: Install cross
       run: cargo install cross
 
-    - name: Build using cross
+    - name: Build with cross
       run: cross build --release --target ${{ matrix.target }}
 
-    - name: Prepare binary for upload
+    - name: Package binary
       run: |
-        BIN_NAME=Rudis
         EXT=""
         if [[ "${{ matrix.target }}" == *windows* ]]; then EXT=".exe"; fi
-
         mkdir -p dist
         cp target/${{ matrix.target }}/release/$BIN_NAME$EXT dist/${BIN_NAME}-${{ matrix.target }}$EXT
         cd dist
         zip ${BIN_NAME}-${{ matrix.target }}.zip ${BIN_NAME}-${{ matrix.target }}$EXT
+
+    - name: Upload release asset
+      uses: softprops/action-gh-release@v2
+      with:
+        files: dist/*.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # macOS native build
+  macos-build:
+    name: Build x86_64-apple-darwin
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        override: true
+
+    - name: Build binary
+      run: cargo build --release
+
+    - name: Package binary
+      run: |
+        mkdir -p dist
+        cp target/release/$BIN_NAME dist/${BIN_NAME}-x86_64-apple-darwin
+        cd dist
+        zip ${BIN_NAME}-x86_64-apple-darwin.zip ${BIN_NAME}-x86_64-apple-darwin
 
     - name: Upload release asset
       uses: softprops/action-gh-release@v2
