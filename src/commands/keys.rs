@@ -29,7 +29,7 @@ impl Command for KeysCommand {
         let keys: Vec<String> = memory
             .data
             .keys()
-            .filter(|key| Pattern::new(pattern).map_or(false, |p| p.matches(key)))
+            .filter(|key| Pattern::new(pattern).is_ok_and(|p| p.matches(key)))
             .cloned()
             .collect();
 
