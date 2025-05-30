@@ -3,18 +3,18 @@ mod del;
 mod echo;
 mod get;
 mod keys;
+mod mget;
 mod ping;
 mod set;
-mod mget;
 
 pub use command::{send_error, Command, CommandContext};
 use del::DelCommand;
 use echo::EchoCommand;
 use get::GetCommand;
 use keys::KeysCommand;
+use mget::MgetCommand;
 use ping::PingCommand;
 use set::SetCommand;
-use mget::MgetCommand;
 
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
