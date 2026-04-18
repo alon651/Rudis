@@ -1,9 +1,8 @@
-# 🦀 Rudis – A Minimal Redis Clone in Rust
+# 🦀 Rudis – A Minimal Redis Clone in Rust(writeup written by ai)
 
 **Rudis** is a multithreaded, in-memory key-value store built in pure Rust, inspired by Redis. It supports a subset of Redis commands over TCP using the RESP protocol and implements both active and passive key expiration strategies.
 
 This project demonstrates systems-level development in Rust, including protocol parsing, concurrency, and custom memory management.
-
 ---
 
 ## 🚀 Features
@@ -14,7 +13,7 @@ This project demonstrates systems-level development in Rust, including protocol 
 - 🧠 **Passive Expiry**: Keys expire when accessed after TTL
 - 🔥 **Active Expiry**: Background thread purges expired keys periodically
 - 🧵 **Multithreaded**: Handles multiple clients concurrently using `std::thread`
-- 🧼 Lightweight: No async runtime (`tokio`) or persistence — just fast and focused
+- 🧼 Lightweight: No async runtime (`tokio`) or persistence, just fast and focused
 
 ---
 
